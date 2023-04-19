@@ -1,0 +1,137 @@
+_schema-version: "3.1"
+ID: s4_glb_customObjectRetirementApp
+description: A simple CAP project.
+version: 1.0.0
+modules:
+  - name: s4_glb_customObjectRetirementApp-srv
+    type: nodejs
+    path: gen/srv
+    requires:
+      - name: uaa_s4_glb_customObjectRetirementApp
+      - name: s4_glb_customObjectRetirementApp-db
+      - name: s4_glb_custObjRetireApp-destination-service
+    provides:
+      - name: srv-api
+        properties:
+          srv-url: ${default-url}
+    parameters:
+      buildpack: nodejs_buildpack
+    build-parameters:
+      builder: npm-ci
+  - name: s4_glb_custObjRetireApp-destination-content
+    type: com.sap.application.content
+    requires:
+      - name: s4_glb_custObjRetireApp-destination-service
+        parameters:
+          content-target: true
+      - name: s4_glb_custObjRetireApp_html_repo_host
+        parameters:
+          service-key:
+            name: s4_glb_custObjRetireApp_html_repo_host-key
+      - name: uaa_s4_glb_customObjectRetirementApp
+        parameters:
+          service-key:
+            name: uaa_s4_glb_customObjectRetirementApp-key
+    parameters:
+      content:
+        instance:
+          destinations:
+            - Name: s4_glb_customObjectRetirementApp_approuter_s4_glb_customObjectRetirementApp_html_repo_host
+              ServiceInstanceName: s4_glb_custObjRetireApp-html5-app-host-service
+              ServiceKeyName: s4_glb_custObjRetireApp_html_repo_host-key
+              sap.cloud.service: s4_glb_customObjectRetirementApp-approuter
+            - Authentication: OAuth2UserTokenExchange
+              Name: s4_glb_customObjectRetirementApp_approuter_uaa_s4_glb_customObjectRetirementApp
+              ServiceInstanceName: s4_glb_customObjectRetirementApp-xsuaa-service
+              ServiceKeyName: uaa_s4_glb_customObjectRetirementApp-key
+              sap.cloud.service: s4_glb_customObjectRetirementApp-approuter
+          existing_destinations_policy: ignore
+    build-parameters:
+      no-source: true
+  - name: s4_glb_customObjectRetirementApp-app-content
+    type: com.sap.application.content
+    path: .
+    requires:
+      - name: s4_glb_custObjRetireApp_html_repo_host
+        parameters:
+          content-target: true
+    build-parameters:
+      build-result: resources
+      requires:
+        - artifacts:
+            - objectRetirementApps4glbcustomobjectretirementappui.zip
+          name: objectRetirementApps4glbcustomobjectretirementappui
+          target-path: resources/
+  - name: objectRetirementApps4glbcustomobjectretirementappui
+    type: html5
+    path: app/s4_glb_customobjectretirementapp-ui
+    build-parameters:
+      build-result: dist
+      builder: custom
+      commands:
+        - npm install
+        - npm run build:cf
+      supported-platforms:
+        []
+
+  - name: s4_glb_customObjectRetirementApp-db-deployer
+    type: hdb
+    path: gen/db
+    parameters:
+      buildpack: nodejs_buildpack
+    requires:
+      - name: s4_glb_customObjectRetirementApp-db
+resources:
+  - name: s4_glb_custObjRetireApp-destination-service
+    type: org.cloudfoundry.managed-service
+    parameters:
+      config:
+        HTML5Runtime_enabled: true
+        init_data:
+          instance:
+            destinations:
+              - Authentication: NoAuthentication
+                Name: ui5
+                ProxyType: Internet
+                Type: HTTP
+                URL: https://ui5.sap.com
+              - Authentication: NoAuthentication
+                HTML5.DynamicDestination: true
+                HTML5.ForwardAuthToken: true
+                Name: s4_glb_customObjectRetirementApp-srv-api
+                ProxyType: Internet
+                Type: HTTP
+                URL: ~{srv-api/srv-url}
+            existing_destinations_policy: update
+        version: 1.0.0
+      service: destination
+      service-name: s4_glb_custObjRetireApp-destination-service
+      service-plan: lite
+    requires:
+      - name: srv-api
+  - name: s4_glb_custObjRetireApp_html_repo_host
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: html5-apps-repo
+      service-name: s4_glb_custObjRetireApp-html5-app-host-service
+      service-plan: app-host
+  - name: uaa_s4_glb_customObjectRetirementApp
+    type: org.cloudfoundry.managed-service
+    parameters:
+      path: ./xs-security.json
+      service: xsuaa
+      service-name: s4_glb_customObjectRetirementApp-xsuaa-service
+      service-plan: application
+  - name: s4_glb_customObjectRetirementApp-db
+    type: com.sap.xs.hdi-container
+    parameters:
+      service: hana
+      service-plan: hdi-shared
+parameters:
+  deploy_mode: html5-repo
+  enable-parallel-deployments: true
+build-parameters:
+  before-all:
+    - builder: custom
+      commands:
+        - npx -p @sap/cds-dk cds build --production

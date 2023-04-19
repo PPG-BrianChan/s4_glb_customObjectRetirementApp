@@ -1,0 +1,68 @@
+{
+  "name": "s4_glb_customObjectRetirementApp",
+  "version": "1.0.0",
+  "description": "A simple CAP project.",
+  "repository": "<Add your repository here>",
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "@sap-cloud-sdk/core": "^1.54.2",
+    "@sap/cds": "^6",
+    "@sap/xssec": "^3.2.17",
+    "@sapmentors/cds-scp-api": "^1.0.4",
+    "express": "^4",
+    "hdb": "^0.19.0",
+    "passport": "^0.6.0",
+    "sorty": "^1.2.2"
+  },
+  "devDependencies": {
+    "@sap/ux-specification": "^1.108.2",
+    "rimraf": "^3.0.2",
+    "sqlite3": "^5.0.4"
+  },
+  "scripts": {
+    "start": "cds run",
+    "watch-s4_glb_customobjectretirementapp-ui": "cds watch --open s4_glb_customobjectretirementapp-ui/webapp/index.html?sap-ui-xx-viewCache=false",
+    "undeploy": "cf undeploy s4_glb_customObjectRetirementApp --delete-services --delete-service-keys --delete-service-brokers",
+    "build": "rimraf resources mta_archives && mbt build --mtar archive",
+    "deploy": "cf deploy mta_archives/archive.mtar --retries 1"
+  },
+  "engines": {
+    "node": "^16.15"
+  },
+  "eslintConfig": {
+    "extends": "eslint:recommended",
+    "env": {
+      "es2020": true,
+      "node": true,
+      "jest": true,
+      "mocha": true
+    },
+    "globals": {
+      "SELECT": true,
+      "INSERT": true,
+      "UPDATE": true,
+      "DELETE": true,
+      "CREATE": true,
+      "DROP": true,
+      "CDL": true,
+      "CQL": true,
+      "CXL": true,
+      "cds": true
+    },
+    "rules": {
+      "no-console": "off",
+      "require-atomic-updates": "off"
+    }
+  },
+  "sapux": [
+    "app/s4_glb_customobjectretirementapp-ui"
+  ],
+  "cds": {
+    "requires": {
+      "db": {
+        "kind": "hana-cloud"
+      }
+    }
+  }
+}

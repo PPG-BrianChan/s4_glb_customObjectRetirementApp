@@ -1,0 +1,34 @@
+###Simulate push data
+POST http://localhost:4004/main/customObject
+Content-Type: application/json
+
+{
+    "objectType":"PROG",
+    "objectName":"ZSD_SDOC_PRINT01",
+    "abapPackage":"ZFICO",
+    "lastRunDate":"2023-04-01",
+    "lastRunUser":"V614944",
+    "approver_userID":"Khairul",
+    "approverEmail":"Kkhalil@ppg.com",
+    "status_code":"S"
+}
+
+###Activate
+POST http://localhost:4004/main/customObject(ID=77a76277-fddd-4f53-abcd-7718c10d821a,IsActiveEntity=false)/main.draftActivate
+Content-Type: application/json
+
+{}
+
+
+###Get
+GET http://localhost:4004/main/customObject
+
+###Update Status
+POST http://localhost:4004/main/updateApprovalStatus
+Content-Type: application/json
+
+{
+    "objectID" : "b89db0dd-fc4b-448a-8b60-25341da375f9",
+    "decision" : "Approve"
+}
+

@@ -1,0 +1,434 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+    <edmx:Reference Uri="https://oasis-tcs.github.io/odata-vocabularies/vocabularies/Org.OData.Capabilities.V1.xml">
+        <edmx:Include Alias="Capabilities" Namespace="Org.OData.Capabilities.V1"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://sap.github.io/odata-vocabularies/vocabularies/Common.xml">
+        <edmx:Include Alias="Common" Namespace="com.sap.vocabularies.Common.v1"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://oasis-tcs.github.io/odata-vocabularies/vocabularies/Org.OData.Core.V1.xml">
+        <edmx:Include Alias="Core" Namespace="Org.OData.Core.V1"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://sap.github.io/odata-vocabularies/vocabularies/UI.xml">
+        <edmx:Include Alias="UI" Namespace="com.sap.vocabularies.UI.v1"/>
+    </edmx:Reference>
+    <edmx:DataServices>
+        <Schema Namespace="main" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+            <EntityContainer Name="EntityContainer">
+                <EntitySet Name="customObject" EntityType="main.customObject">
+                    <NavigationPropertyBinding Path="approver" Target="user"/>
+                    <NavigationPropertyBinding Path="status" Target="status"/>
+                    <NavigationPropertyBinding Path="SiblingEntity" Target="customObject"/>
+                </EntitySet>
+                <EntitySet Name="status" EntityType="main.status"/>
+                <EntitySet Name="user" EntityType="main.user"/>
+            </EntityContainer>
+            <EntityType Name="customObject">
+                <Key>
+                    <PropertyRef Name="ID"/>
+                    <PropertyRef Name="IsActiveEntity"/>
+                </Key>
+                <Property Name="ID" Type="Edm.Guid" Nullable="false"/>
+                <Property Name="createdAt" Type="Edm.DateTimeOffset" Precision="7"/>
+                <Property Name="createdBy" Type="Edm.String" MaxLength="255"/>
+                <Property Name="modifiedAt" Type="Edm.DateTimeOffset" Precision="7"/>
+                <Property Name="modifiedBy" Type="Edm.String" MaxLength="255"/>
+                <Property Name="objectType" Type="Edm.String"/>
+                <Property Name="objectName" Type="Edm.String"/>
+                <Property Name="abapPackage" Type="Edm.String"/>
+                <Property Name="lastRunDate" Type="Edm.Date"/>
+                <Property Name="lastRunUser" Type="Edm.String"/>
+                <NavigationProperty Name="approver" Type="main.user">
+                    <ReferentialConstraint Property="approver_userID" ReferencedProperty="userID"/>
+                </NavigationProperty>
+                <Property Name="approver_userID" Type="Edm.String"/>
+                <Property Name="approverEmail" Type="Edm.String"/>
+                <NavigationProperty Name="status" Type="main.status">
+                    <ReferentialConstraint Property="status_code" ReferencedProperty="code"/>
+                </NavigationProperty>
+                <Property Name="status_code" Type="Edm.String" MaxLength="1"/>
+                <Property Name="IsActiveEntity" Type="Edm.Boolean" Nullable="false" DefaultValue="true"/>
+                <Property Name="HasActiveEntity" Type="Edm.Boolean" Nullable="false" DefaultValue="false"/>
+                <Property Name="HasDraftEntity" Type="Edm.Boolean" Nullable="false" DefaultValue="false"/>
+                <NavigationProperty Name="DraftAdministrativeData" Type="main.DraftAdministrativeData" ContainsTarget="true"/>
+                <NavigationProperty Name="SiblingEntity" Type="main.customObject"/>
+            </EntityType>
+            <EntityType Name="status">
+                <Key>
+                    <PropertyRef Name="code"/>
+                </Key>
+                <Property Name="code" Type="Edm.String" MaxLength="1" Nullable="false"/>
+                <Property Name="description" Type="Edm.String"/>
+            </EntityType>
+            <EntityType Name="user">
+                <Key>
+                    <PropertyRef Name="userID"/>
+                </Key>
+                <Property Name="userID" Type="Edm.String" Nullable="false"/>
+                <Property Name="userFullName" Type="Edm.String"/>
+                <Property Name="userEmail" Type="Edm.String"/>
+            </EntityType>
+            <EntityType Name="DraftAdministrativeData">
+                <Key>
+                    <PropertyRef Name="DraftUUID"/>
+                </Key>
+                <Property Name="DraftUUID" Type="Edm.Guid" Nullable="false"/>
+                <Property Name="CreationDateTime" Type="Edm.DateTimeOffset" Precision="7"/>
+                <Property Name="CreatedByUser" Type="Edm.String" MaxLength="256"/>
+                <Property Name="DraftIsCreatedByMe" Type="Edm.Boolean"/>
+                <Property Name="LastChangeDateTime" Type="Edm.DateTimeOffset" Precision="7"/>
+                <Property Name="LastChangedByUser" Type="Edm.String" MaxLength="256"/>
+                <Property Name="InProcessByUser" Type="Edm.String" MaxLength="256"/>
+                <Property Name="DraftIsProcessedByMe" Type="Edm.Boolean"/>
+            </EntityType>
+            <Action Name="draftPrepare" IsBound="true" EntitySetPath="in">
+                <Parameter Name="in" Type="main.customObject"/>
+                <Parameter Name="SideEffectsQualifier" Type="Edm.String"/>
+                <ReturnType Type="main.customObject"/>
+            </Action>
+            <Action Name="draftActivate" IsBound="true" EntitySetPath="in">
+                <Parameter Name="in" Type="main.customObject"/>
+                <ReturnType Type="main.customObject"/>
+            </Action>
+            <Action Name="draftEdit" IsBound="true" EntitySetPath="in">
+                <Parameter Name="in" Type="main.customObject"/>
+                <Parameter Name="PreserveChanges" Type="Edm.Boolean"/>
+                <ReturnType Type="main.customObject"/>
+            </Action>
+            <Annotations Target="main.customObject">
+                <Annotation Term="UI.SelectionFields">
+                    <Collection>
+                        <PropertyPath>approver_userID</PropertyPath>
+                        <PropertyPath>objectName</PropertyPath>
+                        <PropertyPath>objectType</PropertyPath>
+                        <PropertyPath>status_code</PropertyPath>
+                    </Collection>
+                </Annotation>
+                <Annotation Term="UI.LineItem">
+                    <Collection>
+                        <Record Type="UI.DataField">
+                            <PropertyValue Property="Value" Path="objectType"/>
+                        </Record>
+                        <Record Type="UI.DataField">
+                            <PropertyValue Property="Value" Path="objectName"/>
+                        </Record>
+                        <Record Type="UI.DataField">
+                            <PropertyValue Property="Value" Path="abapPackage"/>
+                        </Record>
+                        <Record Type="UI.DataField">
+                            <PropertyValue Property="Value" Path="lastRunDate"/>
+                        </Record>
+                        <Record Type="UI.DataField">
+                            <PropertyValue Property="Value" Path="lastRunUser"/>
+                        </Record>
+                        <Record Type="UI.DataField">
+                            <PropertyValue Property="Value" Path="approver_userID"/>
+                        </Record>
+                        <Record Type="UI.DataField">
+                            <PropertyValue Property="Value" Path="status_code"/>
+                        </Record>
+                    </Collection>
+                </Annotation>
+                <Annotation Term="UI.HeaderInfo">
+                    <Record Type="UI.HeaderInfoType">
+                        <PropertyValue Property="TypeName" String="{i18n>customObject}"/>
+                            <PropertyValue Property="TypeNamePlural" String="{i18n>customObjects}"/>
+                                <PropertyValue Property="Title">
+                                    <Record Type="UI.DataField">
+                                        <PropertyValue Property="Value" Path="objectType"/>
+                                    </Record>
+                                </PropertyValue>
+                                <PropertyValue Property="Description">
+                                    <Record Type="UI.DataField">
+                                        <PropertyValue Property="Value" Path="objectName"/>
+                                    </Record>
+                                </PropertyValue>
+                            </Record>
+                        </Annotation>
+                        <Annotation Term="UI.HeaderFacets">
+                            <Collection>
+                                <Record Type="UI.ReferenceFacet">
+                                    <PropertyValue Property="Target" AnnotationPath="@UI.FieldGroup#Header"/>
+                                </Record>
+                            </Collection>
+                        </Annotation>
+                        <Annotation Term="UI.Facets">
+                            <Collection>
+                                <Record Type="UI.ReferenceFacet">
+                                    <PropertyValue Property="Target" AnnotationPath="@UI.FieldGroup#Basic"/>
+                                    <PropertyValue Property="Label" String="{i18n>ApprovalDetails}"/>
+                                    </Record>
+                                    <Record Type="UI.ReferenceFacet">
+                                        <PropertyValue Property="Target" AnnotationPath="@UI.FieldGroup#Admin"/>
+                                        <PropertyValue Property="Label" String="{i18n>AdminData}"/>
+                                        </Record>
+                                    </Collection>
+                                </Annotation>
+                                <Annotation Term="UI.FieldGroup" Qualifier="Admin">
+                                    <Record Type="UI.FieldGroupType">
+                                        <PropertyValue Property="Data">
+                                            <Collection>
+                                                <Record Type="UI.DataField">
+                                                    <PropertyValue Property="Value" Path="createdAt"/>
+                                                </Record>
+                                                <Record Type="UI.DataField">
+                                                    <PropertyValue Property="Value" Path="createdBy"/>
+                                                </Record>
+                                                <Record Type="UI.DataField">
+                                                    <PropertyValue Property="Value" Path="modifiedAt"/>
+                                                </Record>
+                                                <Record Type="UI.DataField">
+                                                    <PropertyValue Property="Value" Path="modifiedBy"/>
+                                                </Record>
+                                            </Collection>
+                                        </PropertyValue>
+                                    </Record>
+                                </Annotation>
+                                <Annotation Term="UI.FieldGroup" Qualifier="Basic">
+                                    <Record Type="UI.FieldGroupType">
+                                        <PropertyValue Property="Data">
+                                            <Collection>
+                                                <Record Type="UI.DataField">
+                                                    <PropertyValue Property="Value" Path="approver_userID"/>
+                                                </Record>
+                                                <Record Type="UI.DataField">
+                                                    <PropertyValue Property="Value" Path="status_code"/>
+                                                </Record>
+                                            </Collection>
+                                        </PropertyValue>
+                                    </Record>
+                                </Annotation>
+                                <Annotation Term="UI.FieldGroup" Qualifier="Header">
+                                    <Record Type="UI.FieldGroupType">
+                                        <PropertyValue Property="Data">
+                                            <Collection>
+                                                <Record Type="UI.DataField">
+                                                    <PropertyValue Property="Value" Path="abapPackage"/>
+                                                </Record>
+                                                <Record Type="UI.DataField">
+                                                    <PropertyValue Property="Value" Path="lastRunDate"/>
+                                                </Record>
+                                                <Record Type="UI.DataField">
+                                                    <PropertyValue Property="Value" Path="lastRunUser"/>
+                                                </Record>
+                                            </Collection>
+                                        </PropertyValue>
+                                    </Record>
+                                </Annotation>
+                            </Annotations>
+                            <Annotations Target="main.EntityContainer/customObject">
+                                <Annotation Term="Capabilities.InsertRestrictions">
+                                    <Record Type="Capabilities.InsertRestrictionsType">
+                                        <PropertyValue Property="Insertable" Bool="true"/>
+                                    </Record>
+                                </Annotation>
+                                <Annotation Term="Capabilities.DeleteRestrictions">
+                                    <Record Type="Capabilities.DeleteRestrictionsType">
+                                        <PropertyValue Property="Deletable" Bool="true"/>
+                                    </Record>
+                                </Annotation>
+                                <Annotation Term="Capabilities.UpdateRestrictions">
+                                    <Record Type="Capabilities.UpdateRestrictionsType">
+                                        <PropertyValue Property="Updatable" Bool="true"/>
+                                    </Record>
+                                </Annotation>
+                                <Annotation Term="Common.DraftRoot">
+                                    <Record Type="Common.DraftRootType">
+                                        <PropertyValue Property="ActivationAction" String="main.draftActivate"/>
+                                        <PropertyValue Property="EditAction" String="main.draftEdit"/>
+                                        <PropertyValue Property="PreparationAction" String="main.draftPrepare"/>
+                                    </Record>
+                                </Annotation>
+                            </Annotations>
+                            <Annotations Target="main.customObject/ID">
+                                <Annotation Term="Common.Label" String="{i18n>ID}"/>
+                                </Annotations>
+                                <Annotations Target="main.customObject/createdAt">
+                                    <Annotation Term="UI.HiddenFilter" Bool="true"/>
+                                    <Annotation Term="Core.Immutable" Bool="true"/>
+                                    <Annotation Term="Core.Computed" Bool="true"/>
+                                    <Annotation Term="Common.Label" String="{i18n>createdAt}"/>
+                                    </Annotations>
+                                    <Annotations Target="main.customObject/createdBy">
+                                        <Annotation Term="UI.HiddenFilter" Bool="true"/>
+                                        <Annotation Term="Core.Immutable" Bool="true"/>
+                                        <Annotation Term="Core.Computed" Bool="true"/>
+                                        <Annotation Term="Core.Description" String="{i18n>UserID.Description}"/>
+                                            <Annotation Term="Common.Label" String="{i18n>createdBy}"/>
+                                            </Annotations>
+                                            <Annotations Target="main.customObject/modifiedAt">
+                                                <Annotation Term="UI.HiddenFilter" Bool="true"/>
+                                                <Annotation Term="Core.Computed" Bool="true"/>
+                                                <Annotation Term="Common.Label" String="{i18n>modifiedAt}"/>
+                                                </Annotations>
+                                                <Annotations Target="main.customObject/modifiedBy">
+                                                    <Annotation Term="UI.HiddenFilter" Bool="true"/>
+                                                    <Annotation Term="Core.Computed" Bool="true"/>
+                                                    <Annotation Term="Core.Description" String="{i18n>UserID.Description}"/>
+                                                        <Annotation Term="Common.Label" String="{i18n>modifiedBy}"/>
+                                                        </Annotations>
+                                                        <Annotations Target="main.customObject/objectType">
+                                                            <Annotation Term="Common.Label" String="{i18n>objectType}"/>
+                                                            </Annotations>
+                                                            <Annotations Target="main.customObject/objectName">
+                                                                <Annotation Term="Common.Label" String="{i18n>objectName}"/>
+                                                                </Annotations>
+                                                                <Annotations Target="main.customObject/abapPackage">
+                                                                    <Annotation Term="Common.Label" String="{i18n>abapPackage}"/>
+                                                                    </Annotations>
+                                                                    <Annotations Target="main.customObject/lastRunDate">
+                                                                        <Annotation Term="Common.Label" String="{i18n>lastRunDate}"/>
+                                                                        </Annotations>
+                                                                        <Annotations Target="main.customObject/lastRunUser">
+                                                                            <Annotation Term="Common.Label" String="{i18n>lastRunUser}"/>
+                                                                            </Annotations>
+                                                                            <Annotations Target="main.customObject/approver">
+                                                                                <Annotation Term="Common.Label" String="{i18n>approver}"/>
+                                                                                </Annotations>
+                                                                                <Annotations Target="main.customObject/approver_userID">
+                                                                                    <Annotation Term="Common.Text" Path="approver/userFullName">
+                                                                                        <Annotation Term="UI.TextArrangement" EnumMember="UI.TextArrangementType/TextLast"/>
+                                                                                    </Annotation>
+                                                                                    <Annotation Term="Common.ValueList">
+                                                                                        <Record Type="Common.ValueListType">
+                                                                                            <PropertyValue Property="CollectionPath" String="user"/>
+                                                                                            <PropertyValue Property="Parameters">
+                                                                                                <Collection>
+                                                                                                    <Record Type="Common.ValueListParameterInOut">
+                                                                                                        <PropertyValue Property="LocalDataProperty" PropertyPath="approver_userID"/>
+                                                                                                        <PropertyValue Property="ValueListProperty" String="userID"/>
+                                                                                                    </Record>
+                                                                                                    <Record Type="Common.ValueListParameterOut">
+                                                                                                        <PropertyValue Property="LocalDataProperty" PropertyPath="approverEmail"/>
+                                                                                                        <PropertyValue Property="ValueListProperty" String="userEmail"/>
+                                                                                                    </Record>
+                                                                                                    <Record Type="Common.ValueListParameterDisplayOnly">
+                                                                                                        <PropertyValue Property="ValueListProperty" String="userFullName"/>
+                                                                                                    </Record>
+                                                                                                </Collection>
+                                                                                            </PropertyValue>
+                                                                                        </Record>
+                                                                                    </Annotation>
+                                                                                    <Annotation Term="Common.Label" String="{i18n>approver}"/>
+                                                                                    </Annotations>
+                                                                                    <Annotations Target="main.customObject/status">
+                                                                                        <Annotation Term="Common.Label" String="{i18n>status}"/>
+                                                                                        </Annotations>
+                                                                                        <Annotations Target="main.customObject/status_code">
+                                                                                            <Annotation Term="Common.Text" Path="status/description">
+                                                                                                <Annotation Term="UI.TextArrangement" EnumMember="UI.TextArrangementType/TextOnly"/>
+                                                                                            </Annotation>
+                                                                                            <Annotation Term="Common.ValueList">
+                                                                                                <Record Type="Common.ValueListType">
+                                                                                                    <PropertyValue Property="CollectionPath" String="status"/>
+                                                                                                    <PropertyValue Property="Parameters">
+                                                                                                        <Collection>
+                                                                                                            <Record Type="Common.ValueListParameterInOut">
+                                                                                                                <PropertyValue Property="LocalDataProperty" PropertyPath="status_code"/>
+                                                                                                                <PropertyValue Property="ValueListProperty" String="code"/>
+                                                                                                            </Record>
+                                                                                                            <Record Type="Common.ValueListParameterDisplayOnly">
+                                                                                                                <PropertyValue Property="ValueListProperty" String="description"/>
+                                                                                                            </Record>
+                                                                                                        </Collection>
+                                                                                                    </PropertyValue>
+                                                                                                </Record>
+                                                                                            </Annotation>
+                                                                                            <Annotation Term="Common.Label" String="{i18n>status}"/>
+                                                                                            </Annotations>
+                                                                                            <Annotations Target="main.customObject/IsActiveEntity">
+                                                                                                <Annotation Term="UI.Hidden" Bool="true"/>
+                                                                                            </Annotations>
+                                                                                            <Annotations Target="main.customObject/HasActiveEntity">
+                                                                                                <Annotation Term="UI.Hidden" Bool="true"/>
+                                                                                            </Annotations>
+                                                                                            <Annotations Target="main.customObject/HasDraftEntity">
+                                                                                                <Annotation Term="UI.Hidden" Bool="true"/>
+                                                                                            </Annotations>
+                                                                                            <Annotations Target="main.customObject/DraftAdministrativeData">
+                                                                                                <Annotation Term="UI.Hidden" Bool="true"/>
+                                                                                            </Annotations>
+                                                                                            <Annotations Target="main.EntityContainer/status">
+                                                                                                <Annotation Term="Capabilities.DeleteRestrictions">
+                                                                                                    <Record Type="Capabilities.DeleteRestrictionsType">
+                                                                                                        <PropertyValue Property="Deletable" Bool="false"/>
+                                                                                                    </Record>
+                                                                                                </Annotation>
+                                                                                                <Annotation Term="Capabilities.InsertRestrictions">
+                                                                                                    <Record Type="Capabilities.InsertRestrictionsType">
+                                                                                                        <PropertyValue Property="Insertable" Bool="false"/>
+                                                                                                    </Record>
+                                                                                                </Annotation>
+                                                                                                <Annotation Term="Capabilities.UpdateRestrictions">
+                                                                                                    <Record Type="Capabilities.UpdateRestrictionsType">
+                                                                                                        <PropertyValue Property="Updatable" Bool="false"/>
+                                                                                                    </Record>
+                                                                                                </Annotation>
+                                                                                            </Annotations>
+                                                                                            <Annotations Target="main.status/code">
+                                                                                                <Annotation Term="Common.Text" Path="description"/>
+                                                                                                <Annotation Term="Common.Label" String="{i18n>statusCode}"/>
+                                                                                                </Annotations>
+                                                                                                <Annotations Target="main.status/description">
+                                                                                                    <Annotation Term="Common.Label" String="{i18n>statusDescription}"/>
+                                                                                                    </Annotations>
+                                                                                                    <Annotations Target="main.EntityContainer/user">
+                                                                                                        <Annotation Term="Capabilities.DeleteRestrictions">
+                                                                                                            <Record Type="Capabilities.DeleteRestrictionsType">
+                                                                                                                <PropertyValue Property="Deletable" Bool="false"/>
+                                                                                                            </Record>
+                                                                                                        </Annotation>
+                                                                                                        <Annotation Term="Capabilities.InsertRestrictions">
+                                                                                                            <Record Type="Capabilities.InsertRestrictionsType">
+                                                                                                                <PropertyValue Property="Insertable" Bool="false"/>
+                                                                                                            </Record>
+                                                                                                        </Annotation>
+                                                                                                        <Annotation Term="Capabilities.UpdateRestrictions">
+                                                                                                            <Record Type="Capabilities.UpdateRestrictionsType">
+                                                                                                                <PropertyValue Property="Updatable" Bool="false"/>
+                                                                                                            </Record>
+                                                                                                        </Annotation>
+                                                                                                    </Annotations>
+                                                                                                    <Annotations Target="main.user/userID">
+                                                                                                        <Annotation Term="Common.Text" Path="userFullName"/>
+                                                                                                        <Annotation Term="Common.Label" String="{i18n>title}"/>
+                                                                                                        </Annotations>
+                                                                                                        <Annotations Target="main.user/userFullName">
+                                                                                                            <Annotation Term="Common.Label" String="{i18n>fullName}"/>
+                                                                                                            </Annotations>
+                                                                                                            <Annotations Target="main.user/userEmail">
+                                                                                                                <Annotation Term="Common.Label" String="{i18n>email}"/>
+                                                                                                                </Annotations>
+                                                                                                                <Annotations Target="main.DraftAdministrativeData">
+                                                                                                                    <Annotation Term="Common.Label" String="{i18n>Draft_DraftAdministrativeData}"/>
+                                                                                                                    </Annotations>
+                                                                                                                    <Annotations Target="main.DraftAdministrativeData/DraftUUID">
+                                                                                                                        <Annotation Term="UI.Hidden" Bool="true"/>
+                                                                                                                        <Annotation Term="Common.Label" String="{i18n>Draft_DraftUUID}"/>
+                                                                                                                        </Annotations>
+                                                                                                                        <Annotations Target="main.DraftAdministrativeData/CreationDateTime">
+                                                                                                                            <Annotation Term="Common.Label" String="{i18n>Draft_CreationDateTime}"/>
+                                                                                                                            </Annotations>
+                                                                                                                            <Annotations Target="main.DraftAdministrativeData/CreatedByUser">
+                                                                                                                                <Annotation Term="Common.Label" String="{i18n>Draft_CreatedByUser}"/>
+                                                                                                                                </Annotations>
+                                                                                                                                <Annotations Target="main.DraftAdministrativeData/DraftIsCreatedByMe">
+                                                                                                                                    <Annotation Term="UI.Hidden" Bool="true"/>
+                                                                                                                                    <Annotation Term="Common.Label" String="{i18n>Draft_DraftIsCreatedByMe}"/>
+                                                                                                                                    </Annotations>
+                                                                                                                                    <Annotations Target="main.DraftAdministrativeData/LastChangeDateTime">
+                                                                                                                                        <Annotation Term="Common.Label" String="{i18n>Draft_LastChangeDateTime}"/>
+                                                                                                                                        </Annotations>
+                                                                                                                                        <Annotations Target="main.DraftAdministrativeData/LastChangedByUser">
+                                                                                                                                            <Annotation Term="Common.Label" String="{i18n>Draft_LastChangedByUser}"/>
+                                                                                                                                            </Annotations>
+                                                                                                                                            <Annotations Target="main.DraftAdministrativeData/InProcessByUser">
+                                                                                                                                                <Annotation Term="Common.Label" String="{i18n>Draft_InProcessByUser}"/>
+                                                                                                                                                </Annotations>
+                                                                                                                                                <Annotations Target="main.DraftAdministrativeData/DraftIsProcessedByMe">
+                                                                                                                                                    <Annotation Term="UI.Hidden" Bool="true"/>
+                                                                                                                                                    <Annotation Term="Common.Label" String="{i18n>Draft_DraftIsProcessedByMe}"/>
+                                                                                                                                                    </Annotations>
+                                                                                                                                                </Schema>
+                                                                                                                                            </edmx:DataServices>
+                                                                                                                                        </edmx:Edmx>
