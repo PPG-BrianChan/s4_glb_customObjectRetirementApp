@@ -3,7 +3,7 @@ sap.ui.define(
     function (MessageBox, MessageToast) {
         "use strict";
 
-        function _createUploadController(oExtensionAPI) {
+        function _createUploadController(oExtensionAPI, Entity) {
             var oUploadDialog;
 
             function setOkButtonEnabled(bOk) {
@@ -22,7 +22,6 @@ sap.ui.define(
                 MessageBox.error(sMessage || "Upload failed")
             }
 
-            // TODO: Better option for this?
             function byId(sId) {
                 return sap.ui.core.Fragment.byId("uploadDialog", sId);
             }
@@ -43,6 +42,19 @@ sap.ui.define(
                     setDialogBusy(true)
 
                     var oFileUploader = byId("uploader")
+
+                    var headPar = new sap.ui.unified.FileUploaderParameter();
+                    // headPar.setName('slug');
+                    // headPar.setValue(Entity);
+                    // oFileUploader.removeHeaderParameter('slug');
+                    // oFileUploader.addHeaderParameter(headPar);
+                    var oriURL = oExtensionAPI._controller.extensionAPI._controller._oAppComponent.getManifestObject()._oBaseUri._string;
+                    console.log("Base URL:", oriURL)
+                    if (!(oriURL.includes("port4004-workspaces-ws"))) {
+                        var sUploadUri = oExtensionAPI._controller.extensionAPI._controller._oAppComponent.getManifestObject().resolveUri("./main/excelUpload/excel")
+                        oFileUploader.setUploadUrl(sUploadUri);
+                        console.log("Upload URL:", sUploadUri)
+                    }
 
                     oFileUploader
                         .checkFileReadable()
@@ -93,8 +105,13 @@ sap.ui.define(
                     setDialogBusy(false)
 
                     if (iStatus >= 400) {
-                        var oRawResponse = JSON.parse(oEvent.getParameter("responseRaw"));
-                        showError(oRawResponse && oRawResponse.error && oRawResponse.error.message);
+                        console.log("ERROR");
+                        if (typeof oEvent.getParameter("responseRaw") === 'string') {
+                            showError(oEvent.getParameter("responseRaw"))
+                        } else {
+                            var oRawResponse = JSON.parse(oEvent.getParameter("responseRaw"));
+                            showError(oRawResponse && oRawResponse.error && oRawResponse.error.message);
+                        }
                     } else {
                         MessageToast.show("Uploaded successfully");
                         oExtensionAPI.refresh()
@@ -108,7 +125,7 @@ sap.ui.define(
             showUploadDialog: function (oBindingContext, aSelectedContexts) {
                 this.loadFragment({
                     id: "uploadDialog",
-                    name: "s4_glb_customobjectretirementapp-ui.ext.uploadDialog",
+                    name: "objectRetirementApp.s4glbcustomobjectretirementappui.ext.uploadDialog",
                     controller: _createUploadController(this)
                 }).then(function (oDialog) {
                     oDialog.open();

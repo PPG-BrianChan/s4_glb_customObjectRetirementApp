@@ -7,7 +7,7 @@
                     id="uploader"
                     fileType="xlsx"
                     multiple="false"
-                    uploadUrl="/main/excelUpload/csv"
+                    uploadUrl="/main/excelUpload/excel"
                     fileAllowed=".onFileAllowed"
                     fileEmpty=".onFileEmpty"
                     uploadComplete=".onUploadComplete"

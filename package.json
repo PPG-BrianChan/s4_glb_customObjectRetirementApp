@@ -13,7 +13,8 @@
     "express": "^4",
     "hdb": "^0.19.0",
     "passport": "^0.6.0",
-    "sorty": "^1.2.2"
+    "sorty": "^1.2.2",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@sap/ux-specification": "^1.108.2",
