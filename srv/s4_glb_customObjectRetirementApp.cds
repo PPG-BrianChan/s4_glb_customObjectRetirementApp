@@ -6,6 +6,7 @@ service main {
     @Capabilities.UpdateRestrictions.Updatable : true
     entity customObject as projection on src.customObject actions {
         action completeDeletion();
+        action executeProcess();
     };
 
     @readonly

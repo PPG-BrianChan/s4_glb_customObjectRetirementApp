@@ -121,20 +121,29 @@
                         "settings": {
                             "entitySet": "customObject",
                             "variantManagement": "Page",
+                            "controlConfiguration": {
+                                "@com.sap.vocabularies.UI.v1.LineItem": {
+                                    "tableSettings": {
+                                        "type": "ResponsiveTable",
+                                        "selectionMode": "Multi",
+                                        "selectAll": true
+                                    }
+                                }
+                            },
                             "navigation": {
                                 "customObject": {
                                     "detail": {
                                         "route": "customObjectObjectPage"
                                     }
                                 }
-                            }
-                        },
-                        "content": {
-                            "header": {
-                                "actions": {
-                                    "upload": {
-                                        "press": "s4_glb_customobjectretirementapp-ui.ext.uploadController.showUploadDialog",
-                                        "text": "Upload Excel"
+                            },
+                            "content": {
+                                "header": {
+                                    "actions": {
+                                        "upload": {
+                                            "press": "objectRetirementApp.s4glbcustomobjectretirementappui.ext.uploadController.showUploadDialog",
+                                            "text": "Upload Excel"
+                                        }
                                     }
                                 }
                             }
@@ -147,7 +156,7 @@
                     "name": "sap.fe.templates.ObjectPage",
                     "options": {
                         "settings": {
-                            "editableHeaderContent": false,
+                            "editableHeaderContent": true,
                             "entitySet": "customObject"
                         }
                     }

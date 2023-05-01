@@ -7,11 +7,16 @@ annotate main.customObject with @odata.draft.enabled : true;
 */
 
 annotate main.customObject with {
-    objectType  @title : '{i18n>objectType}';
-    objectName  @title : '{i18n>objectName}';
-    abapPackage @title : '{i18n>abapPackage}';
-    lastRunDate @title : '{i18n>lastRunDate}';
-    lastRunUser @title : '{i18n>lastRunUser}';
+    objectType  @title : '{i18n>objectType}'
+                @mandatory;
+    objectName  @title : '{i18n>objectName}'
+                @mandatory;
+    abapPackage @title : '{i18n>abapPackage}'
+                @mandatory;
+    lastRunDate @title : '{i18n>lastRunDate}'
+                @mandatory;
+    lastRunUser @title : '{i18n>lastRunUser}'
+                @mandatory;
     approver    @title : '{i18n>approver}';
     status      @title : '{i18n>status}'
                 @readonly;
@@ -38,6 +43,11 @@ annotate main.customObject with @UI : {
             $Type  : 'UI.DataFieldForAction',
             Action : 'main.completeDeletion',
             Label  : 'Complete Deletion'
+        },
+        {
+            $Type  : 'UI.DataFieldForAction',
+            Action : 'main.executeProcess',
+            Label  : 'Send for Approval'
         },
         {
             $Type : 'UI.DataField',
@@ -80,21 +90,21 @@ annotate main.customObject with @UI : {
         Description    : {Value : objectName}
     },
 
-    // HeaderFacets       : [{
-    //     $Type  : 'UI.ReferenceFacet',
-    //     Target : '@UI.FieldGroup#Header',
-    // }, ],
+    HeaderFacets       : [{
+        $Type  : 'UI.ReferenceFacet',
+        Target : '@UI.FieldGroup#Header',
+    }, ],
 
     /*
      Facets and field groups
     */
 
     Facets             : [
-        {
-            $Type  : 'UI.ReferenceFacet',
-            Target : '@UI.FieldGroup#Header',
-            Label  : '{i18n>Header}',
-        },
+        // {
+        //     $Type  : 'UI.ReferenceFacet',
+        //     Target : '@UI.FieldGroup#Header',
+        //     Label  : '{i18n>Header}',
+        // },
         {
             $Type  : 'UI.ReferenceFacet',
             Target : '@UI.FieldGroup#Basic',
@@ -128,8 +138,8 @@ annotate main.customObject with @UI : {
     FieldGroup #Header : {
         $Type : 'UI.FieldGroupType',
         Data  : [
-            {Value: objectType},
-            {Value: objectName},
+            // {Value: objectType},
+            // {Value: objectName},
             {Value : abapPackage},
             {Value : lastRunDate},
             {Value : lastRunUser},
