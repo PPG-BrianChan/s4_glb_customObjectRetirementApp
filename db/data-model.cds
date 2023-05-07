@@ -8,7 +8,7 @@ using {
 entity customObject : cuid, managed {
     objectType  : String;
     objectName  : String;
-    abapPackage     : String;
+    abapPackage : String;
     lastRunDate : Date;
     lastRunUser : String;
     approver    : Association to one user;

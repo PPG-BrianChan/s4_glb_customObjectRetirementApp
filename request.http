@@ -23,6 +23,10 @@ Content-Type: application/json
 ###Get
 GET http://localhost:4004/main/customObject
 
+
+###Get
+GET http://localhost:4004/main/customObject(ID=8add5385-8771-4d3c-b3a9-1378ee2d61a7,IsActiveEntity=false)
+
 ###Update Status
 POST http://localhost:4004/main/updateApprovalStatus
 Content-Type: application/json

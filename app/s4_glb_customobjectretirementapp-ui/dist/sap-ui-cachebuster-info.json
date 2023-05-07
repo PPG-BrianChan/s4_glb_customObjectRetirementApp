@@ -1,11 +1,11 @@
 {
+  "Component-preload.js": 1683018966769,
+  "ext/uploadController.js": 1683018921984,
+  "manifest.json": 1683018966426,
   "Component.js": 1681058480138,
-  "manifest.json": 1682956813372,
-  "ext/uploadController.js": 1682956779420,
   "i18n/i18n.properties": 1681058534059,
-  "Component-preload.js": 1682956813699,
+  "ext/uploadController-dbg.js": 1683018921984,
   "Component-dbg.js": 1681058480138,
-  "ext/uploadController-dbg.js": 1682956779420,
   "ext/uploadDialog.fragment.xml": 1682577312055,
   "index.html": 1681058480142
 }

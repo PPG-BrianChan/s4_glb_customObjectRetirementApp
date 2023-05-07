@@ -48,9 +48,11 @@ sap.ui.define(
                     // headPar.setValue(Entity);
                     // oFileUploader.removeHeaderParameter('slug');
                     // oFileUploader.addHeaderParameter(headPar);
-                    var oriURL = oExtensionAPI._controller.extensionAPI._controller._oAppComponent.getManifestObject()._oBaseUri._string;
-                    console.log("Base URL:", oriURL)
-                    if (!(oriURL.includes("port4004-workspaces-ws"))) {
+                    var baseURL = oExtensionAPI._controller.extensionAPI._controller._oAppComponent.getManifestObject()._oBaseUri._string;
+                    console.log("Base URL:", baseURL)
+                    if (!(baseURL.includes("port4004-workspaces-ws"))) {
+                        var oriURL = oFileUploader.getUploadUrl();
+                        console.log("Original URL:",oriURL)
                         var sUploadUri = oExtensionAPI._controller.extensionAPI._controller._oAppComponent.getManifestObject().resolveUri("./main/excelUpload/excel")
                         oFileUploader.setUploadUrl(sUploadUri);
                         console.log("Upload URL:", sUploadUri)

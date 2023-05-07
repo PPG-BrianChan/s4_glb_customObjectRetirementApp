@@ -1,5 +1,6 @@
 const XLSX = require('xlsx')
 const stream = require('stream')
+const validateEntry = require('./validateEntry.js')
 
 module.exports = async function (req, customObject) {
     if (req.data.excel) {
@@ -16,47 +17,85 @@ module.exports = async function (req, customObject) {
             streamObj.on('end', async () => {
                 var buffer = Buffer.concat(buffers);
                 var workbook = XLSX.read(buffer);
-                let data = []
-                const sheets = workbook.SheetNames
+                let data = [];
+                let errorData = [];
+                let invalidMessage = "";
+                const sheets = workbook.SheetNames;
                 for (let i = 0; i < sheets.length; i++) {
                     const temp = XLSX.utils.sheet_to_json(
-                        workbook.Sheets[workbook.SheetNames[i]], { dateNF: 'yyyy-mm-dd' })
+                        workbook.Sheets[workbook.SheetNames[i]], { dateNF: 'yyyy-mm-dd' });
                     temp.forEach((res, index) => {
-                        data.push(JSON.parse(JSON.stringify(res)))
+                        data.push(JSON.parse(JSON.stringify(res)));
                     })
                 }
                 if (data) {
                     //Find date fields
                     const dateFields = Object.keys(data[0]).filter(key => key.toLowerCase().includes('date'));
 
-                    //Convert Date Format
-                    //At the same time, set status
-                    for (i = 0; i < dateFields.length; i++) {
-                        let field = dateFields[i];
-                        for (j = 0; j < data.length; j++) {
-                            let read = data[j][field];
-                            let converted = new Date((read - (25567 + 2)) * 86400 * 1000).toISOString().substring(0, 10);
-                            data[j][field] = converted;
-                            data[j].status_code = 'C';
+                    for (i = 0; i < data.length; i++) {
+                        //Validation
+                        let valid = await validateEntry(data[i], customObject)
+
+                        if (valid !== true) {
+                            errorData.push(data[i])
+                            data.splice(i, 1);
+                            i--;
+                            continue;
+                        }
+                        //Convert date format
+                        for (j = 0; j < dateFields.length; j++) {
+                            let field = dateFields[j];
+                            let readDate = data[i][field];
+                            let convertedDate = new Date((readDate - (25567 + 2)) * 86400 * 1000).toISOString().substring(0, 10);
+                            data[i][field] = convertedDate;
+                        }
+
+                        //set default values
+                        data[i].status_code = 'C'
+                        data[i].createdBy = req.user.id;
+                        data[i].modifiedBy = req.user.id;
+                    }
+
+                    //Prepare list of invalid entries
+                    if (errorData.length > 0) {
+                        for (i = 0; i < errorData.length; i++) {
+                            let temp = `Object Type:${errorData[i].objectType};Object Name:${errorData[i].objectName}`;
+
+                            if (i == 0) {
+                                invalidMessage = temp
+                            } else {
+                                invalidMessage = invalidMessage.concat(`,${temp}`)
+                            }
                         }
                     }
 
                     //Execute insert
-                    try {
-                        const insertQuery = INSERT.into(customObject).entries(data)
-                        const insertResult = cds.run(insertQuery);
-                        console.log("insertResult")
-                        resolve(req.notify({
-                            message: 'Upload Successful',
-                            status: 200
-                        }));
-                    }
-                    catch (error) {
-                        console.log(error.message);
-                        reject(req.reject({
-                            message: error.message,
-                            status: 502
-                        }))
+                    if (data.length > 0) {
+                        try {
+                            const insertQuery = INSERT.into(customObject).entries(data)
+                            const insertResult = await cds.run(insertQuery);
+                            // console.log("insertResult:", insertResult)
+                            if (errorData.length == 0) {
+                                resolve(req.notify({
+                                    message: 'All entries uploaded successfully',
+                                    status: 200
+                                }));
+                            }
+                            else {
+                                console.log("List of invalid entries exist as below:")
+                                console.log(invalidMessage)
+                                resolve(req.notify({
+                                    message: 'Conflicting data exist! Only valid entries are uploaded!',
+                                    status: 207
+                                }));
+                            }
+                        }
+                        catch (error) {
+                            console.log(error.message);
+                            reject(req.error(502, error.message));
+                        }
+                    }else{
+                        reject(req.error(502, "No valid entries exist!"));
                     }
                 }
             });
