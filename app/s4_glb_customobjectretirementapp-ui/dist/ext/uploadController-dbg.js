@@ -43,16 +43,11 @@ sap.ui.define(
 
                     var oFileUploader = byId("uploader")
 
-                    var headPar = new sap.ui.unified.FileUploaderParameter();
-                    // headPar.setName('slug');
-                    // headPar.setValue(Entity);
-                    // oFileUploader.removeHeaderParameter('slug');
-                    // oFileUploader.addHeaderParameter(headPar);
                     var baseURL = oExtensionAPI._controller.extensionAPI._controller._oAppComponent.getManifestObject()._oBaseUri._string;
                     console.log("Base URL:", baseURL)
                     if (!(baseURL.includes("port4004-workspaces-ws"))) {
                         var oriURL = oFileUploader.getUploadUrl();
-                        console.log("Original URL:",oriURL)
+                        console.log("Original URL:", oriURL)
                         var sUploadUri = oExtensionAPI._controller.extensionAPI._controller._oAppComponent.getManifestObject().resolveUri("./main/excelUpload/excel")
                         oFileUploader.setUploadUrl(sUploadUri);
                         console.log("Upload URL:", sUploadUri)
@@ -99,7 +94,11 @@ sap.ui.define(
                 },
 
                 onUploadComplete: function (oEvent) {
+                    var testAll = oEvent.getParameters();
+                    console.log("Testing all param:", testAll);
                     var iStatus = oEvent.getParameter("status");
+                    console.log("Status:", iStatus)
+
                     var oFileUploader = oEvent.getSource()
 
                     oFileUploader.clear();
@@ -107,15 +106,22 @@ sap.ui.define(
                     setDialogBusy(false)
 
                     if (iStatus >= 400) {
-                        console.log("ERROR");
-                        if (typeof oEvent.getParameter("responseRaw") === 'string') {
-                            showError(oEvent.getParameter("responseRaw"))
-                        } else {
-                            var oRawResponse = JSON.parse(oEvent.getParameter("responseRaw"));
-                            showError(oRawResponse && oRawResponse.error && oRawResponse.error.message);
+                        var oRawResponse;
+                        try {
+                            oRawResponse = JSON.parse(oEvent.getParameter("responseRaw"));
+                        } catch (e) {
+                            oRawResponse = oEvent.getParameter("responseRaw");
+                        }
+
+                        if (typeof oRawResponse == "object") {
+                            if (oRawResponse && oRawResponse.error && oRawResponse.error.message) {
+                                showError(`Error occured during upload. Status:${oRawResponse.error.code}. Message:${oRawResponse.error.message}`);
+                            }
+                        }else{
+                            showError(`Error occured during upload with unparsed error:${oRawResponse}`);
                         }
                     } else {
-                        MessageToast.show("Uploaded successfully");
+                        MessageBox.success("Uploaded successfully. Please check in console to identify if invalid entries exist!");
                         oExtensionAPI.refresh()
                         closeDialog();
                     }
