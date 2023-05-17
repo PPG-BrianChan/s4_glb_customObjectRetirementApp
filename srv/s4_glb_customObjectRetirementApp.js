@@ -19,8 +19,10 @@ module.exports = (srv) => {
         req.data.status_code = 'C'
         let isValid = await validateEntry(req.data,customObject);
         if(!isValid){
-            req.error ({
-                message: 'Keys already exist in Database!'
+            return req.error ({
+                code: "KEYS_EXIST",
+                message: 'Keys already exist in Database!',
+                status: 502
               })
         }
     })

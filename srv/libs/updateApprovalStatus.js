@@ -12,7 +12,9 @@ module.exports = async function (req, customObject) {
         await cds.run(query_update_status)
         console.log("Data updated successfully")
         console.log("Proceeding to send mail")
-        await _sendMail(req, customObject);
+        if (req.data.decision == 'Approve') {
+            await _sendMail(req, customObject);
+        }
     } catch (error) {
         console.log(error.message);
     }
@@ -20,7 +22,7 @@ module.exports = async function (req, customObject) {
 
 async function _sendMail(req, customObject) {
     //Find object name
-    let query = SELECT.from(customObject).columns("ID","objectName").where({ ID: req.data.objectID });
+    let query = SELECT.from(customObject).columns("ID", "objectName").where({ ID: req.data.objectID });
     let selectResult = await cds.run(query);
 
     if (selectResult) {
